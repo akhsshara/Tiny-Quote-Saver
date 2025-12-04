@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Beautiful Quote Saver</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* ✍️ Animated gradient outer background */
+    body {
+      font-family: "Poppins", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      position: relative;
+
+      background: linear-gradient(135deg, #020617, #0f172a, #1d3557, #7b2cbf, #f97316);
+      background-size: 350% 350%;
+      animation: gradientShift 18s ease-in-out infinite;
+    }
+
+    @keyframes gradientShift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* 💡 Soft moving light on top of background */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: -10%;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(255, 255, 255, 0.18), transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(255, 255, 255, 0.15), transparent 55%);
+      mix-blend-mode: screen;
+      opacity: 0.7;
+      pointer-events: none;
+      animation: lightMove 14s ease-in-out infinite alternate;
+    }
+
+    @keyframes lightMove {
+      0%   { transform: translate(-5%, -5%) scale(1); }
+      50%  { transform: translate(5%, 3%) scale(1.1); }
+      100% { transform: translate(-3%, 4%) scale(1.05); }
+    }
+
+    /* 🫧 Subtle floating shapes */
+    .shape {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      animation: float 18s ease-in-out infinite alternate;
+    }
+
+    .shape.one {
+      width: 180px;
+      height: 180px;
+      top: 8%;
+      left: 10%;
+    }
+
+    .shape.two {
+      width: 220px;
+      height: 220px;
+      bottom: 5%;
+      right: 8%;
+      animation-duration: 22s;
+    }
+
+    @keyframes float {
+      0%   { transform: translate(0, 0); }
+      50%  { transform: translate(20px, -30px); }
+      100% { transform: translate(-15px, 15px); }
+    }
+
+    /* ✨ Stars sprinkle */
+    .stars {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(2px 2px at 10% 20%, rgba(255,255,255,0.9), transparent),
+        radial-gradient(2px 2px at 80% 30%, rgba(255,255,255,0.8), transparent),
+        radial-gradient(2px 2px at 50% 70%, rgba(255,255,255,0.9), transparent),
+        radial-gradient(2px 2px at 20% 85%, rgba(255,255,255,0.7), transparent),
+        radial-gradient(3px 3px at 90% 60%, rgba(255,255,255,0.9), transparent);
+      opacity: 0.55;
+      animation: sparkle 5s linear infinite alternate;
+    }
+
+    @keyframes sparkle {
+      from { filter: brightness(0.7); }
+      to   { filter: brightness(1.6); }
+    }
+
+    /* 📌 Main card */
+    .container {
+      width: 90%;
+      max-width: 560px;
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(22px);
+      padding: 26px 24px 26px;
+      border-radius: 22px;
+      box-shadow: 0 22px 55px rgba(0,0,0,0.8);
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      position: relative;
+      z-index: 2;
+      animation: cardIn 0.8s ease;
+      transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+    }
+
+    .container:hover {
+      transform: translateY(-4px) scale(1.01);
+      box-shadow: 0 28px 65px rgba(15,23,42,0.95);
+      border-color: rgba(129, 140, 248, 0.9);
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(30px) scale(0.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* quote icon in background of card */
+    .container::before {
+      content: "❝";
+      position: absolute;
+      top: -20px;
+      right: 20px;
+      font-size: 60px;
+      color: rgba(148, 163, 184, 0.25);
+      animation: quoteGlow 6s ease-in-out infinite alternate;
+    }
+
+    @keyframes quoteGlow {
+      from { text-shadow: 0 0 4px rgba(129,140,248,0.4); transform: translateY(0); }
+      to   { text-shadow: 0 0 12px rgba(236,72,153,0.9); transform: translateY(-4px); }
+    }
+
+    h1 {
+      text-align: center;
+      color: #e5e7eb;
+      margin-bottom: 4px;
+      font-size: 26px;
+      letter-spacing: 1px;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 13px;
+      color: #9ca3af;
+      margin-bottom: 14px;
+      font-style: italic;
+    }
+
+    /* stats row */
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      font-size: 12px;
+      color: #c4c9d4;
+      margin-bottom: 14px;
+    }
+
+    .stats span {
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: radial-gradient(circle at top left, rgba(56,189,248,0.25), transparent 60%);
+      border: 1px solid rgba(148,163,184,0.4);
+      transition: transform 0.25s ease;
+    }
+
+    .stats span:hover {
+      transform: translateY(-2px) scale(1.03);
+    }
+
+    /* Highlight random quote */
+    .highlight-box {
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      background: linear-gradient(135deg, rgba(56,189,248,0.22), rgba(129,140,248,0.25));
+      border: 1px solid rgba(129,140,248,0.7);
+      box-shadow: 0 10px 25px rgba(30,64,175,0.4);
+      position: relative;
+      overflow: hidden;
+      animation: highlightPulse 6s ease-in-out infinite;
+    }
+
+    @keyframes highlightPulse {
+      0%   { box-shadow: 0 10px 25px rgba(30,64,175,0.4); transform: translateY(0); }
+      50%  { box-shadow: 0 16px 40px rgba(129,140,248,0.7); transform: translateY(-2px); }
+      100% { box-shadow: 0 10px 25px rgba(30,64,175,0.4); transform: translateY(0); }
+    }
+
+    .highlight-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #e0f2fe;
+      margin-bottom: 4px;
+    }
+
+    .highlight-text {
+      font-size: 14px;
+      color: #f9fafb;
+      margin-bottom: 6px;
+      min-height: 20px;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .highlight-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .highlight-tip {
+      font-size: 11px;
+      color: #d1fae5;
+      opacity: 0.9;
+    }
+
+    .secondary-btn {
+      padding: 6px 10px;
+      font-size: 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(56,189,248,0.8);
+      background: rgba(15,23,42,0.6);
+      color: #e0f2fe;
+      cursor: pointer;
+      transition: 0.25s;
+      white-space: nowrap;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .secondary-btn:hover {
+      transform: translateY(-1px) scale(1.05);
+      box-shadow: 0 0 10px rgba(56,189,248,0.8);
+      background: rgba(15,23,42,0.9);
+    }
+
+    .secondary-btn:active::after,
+    button:active::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(255,255,255,0.4), transparent 60%);
+      opacity: 0;
+      animation: ripple 0.45s ease-out;
+      pointer-events: none;
+    }
+
+    @keyframes ripple {
+      from { opacity: 0.7; transform: scale(0.6); }
+      to   { opacity: 0; transform: scale(1.6); }
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    input {
+      flex: 1;
+      padding: 10px 11px;
+      border-radius: 10px;
+      border: 1px solid rgba(148,163,184,0.7);
+      outline: none;
+      font-size: 14px;
+      background: rgba(15,23,42,0.9);
+      color: #e5e7eb;
+      transition: 0.3s;
+    }
+
+    input::placeholder {
+      color: #6b7280;
+    }
+
+    input:focus {
+      box-shadow: 0 0 14px rgba(59,130,246,0.7);
+      border-color: #60a5fa;
+      transform: translateY(-1px);
+    }
+
+    button {
+      padding: 10px 14px;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      border: none;
+      color: white;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      transition: 0.25s;
+      white-space: nowrap;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button:hover {
+      transform: scale(1.08) translateY(-1px);
+      box-shadow: 0 0 14px rgba(34,197,94,0.7);
+    }
+
+    /* filter buttons */
+    .filter-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin: 6px 0 8px;
+    }
+
+    .chip {
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 11px;
+      border: 1px solid rgba(148,163,184,0.7);
+      background: rgba(15,23,42,0.8);
+      color: #e5e7eb;
+      cursor: pointer;
+      transition: 0.25s;
+    }
+
+    .chip:hover {
+      transform: translateY(-1px);
+      background: rgba(30,64,175,0.75);
+    }
+
+    .chip.active {
+      background: linear-gradient(135deg, #6366f1, #ec4899);
+      border-color: transparent;
+      box-shadow: 0 0 10px rgba(236,72,153,0.8);
+    }
+
+    ul {
+      list-style: none;
+      margin-top: 6px;
+      padding: 0;
+      max-height: 240px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+
+    ul::-webkit-scrollbar {
+      width: 6px;
+    }
+    ul::-webkit-scrollbar-thumb {
+      background: rgba(148,163,184,0.8);
+      border-radius: 10px;
+    }
+
+    li {
+      background: radial-gradient(circle at top left, rgba(56,189,248,0.18), rgba(30,64,175,0.7));
+      color: #e5e7eb;
+      padding: 10px 10px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      border: 1px solid rgba(129,140,248,0.7);
+      animation: itemIn 0.4s ease;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    li:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(15,23,42,0.8);
+    }
+
+    li.favourite {
+      border-color: rgba(244,114,182,0.9);
+      box-shadow: 0 0 12px rgba(244,114,182,0.6);
+    }
+
+    @keyframes itemIn {
+      from { transform: translateY(8px); opacity: 0; }
+      to   { transform: translateY(0); opacity: 1; }
+    }
+
+    .quote-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .quote-text {
+      font-size: 14px;
+      margin-right: 8px;
+      word-break: break-word;
+    }
+
+    .quote-tag {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(248,250,252,0.4);
+      color: #e5e7eb;
+      opacity: 0.8;
+    }
+
+    .quote-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: 6px;
+    }
+
+    .favBtn {
+      background: transparent;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.25s;
+      color: #e5e7eb;
+    }
+
+    .favBtn:hover {
+      transform: scale(1.2) translateY(-1px) rotate(-5deg);
+    }
+
+    .favBtn.active {
+      color: #fbbf24;
+      text-shadow: 0 0 8px rgba(251,191,36,0.8);
+    }
+
+    .deleteBtn {
+      background: transparent;
+      border: 1px solid rgba(248,113,113,0.8);
+      color: #fecaca;
+      padding: 5px 8px;
+      border-radius: 8px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: 0.25s;
+    }
+
+    .deleteBtn:hover {
+      background: rgba(248,113,113,0.2);
+      transform: scale(1.1) translateY(-1px);
+    }
+
+    .remove {
+      animation: itemOut 0.35s ease forwards;
+    }
+
+    @keyframes itemOut {
+      to { transform: scale(0.7) translateY(-6px); opacity: 0; }
+    }
+
+    .empty {
+      text-align: center;
+      color: #9ca3af;
+      font-style: italic;
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%) translateY(120%);
+      background: rgba(15,23,42,0.95);
+      color: #e5e7eb;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid rgba(148,163,184,0.7);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.7);
+      opacity: 0;
+      transition: 0.4s ease;
+      z-index: 10;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0%);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Decorative shapes & stars -->
+  <div class="shape one"></div>
+  <div class="shape two"></div>
+  <div class="stars"></div>
+
+  <div class="container">
+    <h1>Quote Saver</h1>
+    <p class="subtitle">Capture the lines that move your heart ✨</p>
+
+    <div class="stats">
+      <span>Total quotes: <span id="totalCount">0</span></span>
+      <span>Favourites: <span id="favCount">0</span></span>
+    </div>
+
+    <div id="highlightBox" class="highlight-box">
+      <p class="highlight-label">Quote of the moment</p>
+      <p id="highlightText" class="highlight-text">
+        Add a quote and let me pick one to inspire you ✨
+      </p>
+      <div class="highlight-actions">
+        <p class="highlight-tip">Tip: Favourited quotes get picked more often ⭐</p>
+        <button id="shuffleBtn" class="secondary-btn">Inspire me</button>
+      </div>
+    </div>
+
+    <div class="input-row">
+      <input id="quoteInput" type="text" placeholder="Type a quote and press Enter..." />
+      <button id="addBtn">Add</button>
+    </div>
+
+    <div class="filter-row">
+      <button id="filterAll" class="chip active">All</button>
+      <button id="filterFav" class="chip">Favourites</button>
+    </div>
+
+    <ul id="quoteList"></ul>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const STORAGE_KEY = "quotes";
+    let currentFilter = "all";
+
+    function getQuotes() {
+      const raw = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      // Backward compatibility: if old data was array of strings
+      if (raw.length && typeof raw[0] === "string") {
+        return raw.map(text => ({
+          text,
+          favourite: false,
+          createdAt: Date.now()
+        }));
+      }
+      return raw;
+    }
+
+    function saveQuotes(quotes) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(quotes));
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 1800);
+    }
+
+    function updateStats(quotes) {
+      const total = quotes.length;
+      const favs = quotes.filter(q => q.favourite).length;
+      document.getElementById("totalCount").textContent = total;
+      document.getElementById("favCount").textContent = favs;
+    }
+
+    function pickRandomQuote(quotes) {
+      if (!quotes.length) return null;
+
+      const favs = quotes.filter(q => q.favourite);
+      const pool = favs.length ? favs.concat(quotes) : quotes; // favourites more likely
+      const index = Math.floor(Math.random() * pool.length);
+      return pool[index];
+    }
+
+    function updateHighlight() {
+      const quotes = getQuotes();
+      const highlightText = document.getElementById("highlightText");
+
+      if (!quotes.length) {
+        highlightText.style.opacity = 1;
+        highlightText.textContent = "Add a quote and let me pick one to inspire you ✨";
+        return;
+      }
+
+      const q = pickRandomQuote(quotes);
+      if (q) {
+        // small fade-change animation
+        highlightText.style.opacity = 0;
+        highlightText.style.transform = "translateY(4px)";
+        setTimeout(() => {
+          highlightText.textContent = q.text;
+          highlightText.style.transform = "translateY(0)";
+          highlightText.style.opacity = 1;
+        }, 200);
+      }
+    }
+
+    function renderQuotes() {
+      const allQuotes = getQuotes();
+      const list = document.getElementById("quoteList");
+      list.innerHTML = "";
+
+      updateStats(allQuotes);
+
+      let quotesToShow = allQuotes;
+      if (currentFilter === "fav") {
+        quotesToShow = allQuotes.filter(q => q.favourite);
+      }
+
+      if (!quotesToShow.length) {
+        list.innerHTML = `<p class="empty">${
+          allQuotes.length
+            ? "No favourites yet. Tap the star ⭐ to mark a quote!"
+            : "No quotes saved yet. Start with your favourite line ✍️"
+        }</p>`;
+        return;
+      }
+
+      quotesToShow.forEach((quoteObj) => {
+        // Need index from original array for operations
+        const index = allQuotes.indexOf(quoteObj);
+        const li = document.createElement("li");
+        if (quoteObj.favourite) li.classList.add("favourite");
+
+        li.innerHTML = `
+          <div class="quote-left">
+            <span class="quote-text">${quoteObj.text}</span>
+            ${quoteObj.favourite ? '<span class="quote-tag">Fav</span>' : ""}
+          </div>
+          <div class="quote-actions">
+            <button
+              class="favBtn ${quoteObj.favourite ? "active" : ""}"
+              onclick="toggleFavourite(${index})"
+              title="Mark as favourite"
+            >
+              ★
+            </button>
+            <button class="deleteBtn" onclick="deleteQuote(${index}, this)">Delete</button>
+          </div>
+        `;
+        list.appendChild(li);
+      });
+    }
+
+    function addQuote() {
+      const input = document.getElementById("quoteInput");
+      const text = input.value.trim();
+      if (!text) return;
+
+      const quotes = getQuotes();
+      quotes.push({
+        text,
+        favourite: false,
+        createdAt: Date.now()
+      });
+      saveQuotes(quotes);
+
+      input.value = "";
+      showToast("Quote added ✨");
+      renderQuotes();
+      updateHighlight();
+    }
+
+    function deleteQuote(index, btn) {
+      const li = btn.closest("li");
+      li.classList.add("remove");
+
+      setTimeout(() => {
+        const quotes = getQuotes();
+        quotes.splice(index, 1);
+        saveQuotes(quotes);
+        showToast("Quote deleted 🗑️");
+        renderQuotes();
+        updateHighlight();
+      }, 350);
+    }
+
+    function toggleFavourite(index) {
+      const quotes = getQuotes();
+      quotes[index].favourite = !quotes[index].favourite;
+      saveQuotes(quotes);
+      showToast(
+        quotes[index].favourite ? "Marked as favourite ⭐" : "Removed from favourites"
+      );
+      renderQuotes();
+      updateHighlight();
+    }
+
+    // Filter handlers
+    function setFilter(filter) {
+      currentFilter = filter;
+      document.getElementById("filterAll").classList.toggle("active", filter === "all");
+      document.getElementById("filterFav").classList.toggle("active", filter === "fav");
+      renderQuotes();
+    }
+
+    // Event listeners
+    document.getElementById("addBtn").addEventListener("click", addQuote);
+
+    document.getElementById("quoteInput").addEventListener("keypress", (e) => {
+      if (e.key === "Enter") addQuote();
+    });
+
+    document.getElementById("shuffleBtn").addEventListener("click", () => {
+      updateHighlight();
+      showToast("New quote of the moment ✨");
+    });
+
+    document.getElementById("filterAll").addEventListener("click", () => setFilter("all"));
+    document.getElementById("filterFav").addEventListener("click", () => setFilter("fav"));
+
+    // Initial render
+    renderQuotes();
+    updateHighlight();
+  </script>
+</body>
+</html>
